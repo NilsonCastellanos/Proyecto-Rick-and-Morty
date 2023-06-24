@@ -11,10 +11,13 @@ ADD RANDOM
       </button>
       <div>
         <Link to= "/about" > 
-        <button>-ABOUT-</button>
+        <button>  ABOUT  </button>
         </Link>
         <Link to= "/home">
-        <button>-HOME-</button>
+        <button>  HOME  </button>
+        </Link>
+        <Link to="/favorites">
+        <button>  FAVS  </button>
         </Link>
       </div>
         </div>

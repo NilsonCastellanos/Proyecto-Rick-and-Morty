@@ -1,30 +1,15 @@
-import Card from '../Card/Card';
-import style from './Cards.module.css'
+import Card from "../Card/Card";
 
+import style from "../Cards/Cards.module.css";
 
-const Cards = ({ characters, onClose }) => {
-   return (
-      <div className={style.contenedor}>
-         {
-            characters?.map(({ id, name, species, gender, image, origin, status }) => {
-               return (
-                  <Card
-                     key={id}
-                     id={id}
-                     name={name}
-                     species={species}
-                     gender={gender}
-                     image={image}
-                     origin={origin.name}
-                     status={status}
-                     onClose={onClose}
-                  />
-               )
-            })
+export default function Cards(props) {
+  const {characters, onClose} = props;
 
-         }
-      </div>
-   )
-};
-
-export default Cards;
+  return (
+    <div className={style.cardList}>
+      {characters?.map((character) => (
+        <Card key={character.id} character={character} onClose={onClose} />
+      ))}
+    </div>
+  );
+}

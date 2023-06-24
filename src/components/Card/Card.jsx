@@ -1,33 +1,96 @@
-//import {useNavigate} from "react-router-dom";
-import { Link } from 'react-router-dom';
-import  './Card.module.css'
+import { useNavigate } from "react-router-dom";
+import { connect } from 'react-redux';
+import { useState, useEffect } from "react";
+import { addFavorite, removeFavorite } from "../../redux/actions";
+import style from "../../components/Card/card.module.css";
 
 
 
-const Card = ({  id, name, status, species, gender, origin, image, onClose }) => {
+function Card(props) {
+   const navigate = useNavigate();
+   const { character, onClose, addFavorite, removeFavorite, favorites } = props;
+   const { image, name, species, gender, id } = character;
 
+   const [closeBtn, setCloseBtn] = useState(true);
+   const [fav, setFav] = useState(false);
 
+   useEffect(() => {
+      if (!onClose) {
+         setCloseBtn(false);
+      }
+   }, []);
 
+   useEffect(() => {
+      favorites.forEach((fav) => {
+         if (fav.id === id) {
+            setFav(true);
+         }
+      });
+   }, [favorites]);
+
+   function navigateHandler() {
+      navigate(`/detail/${character.id}`);
+   }
+
+   function handleFavorite(character) {
+      if (!fav) {
+         addFavorite(character);
+         setFav(true);
+      } else {
+         removeFavorite(character);
+         setFav(false);
+      }
+   }
 
    return (
-      <div className='cards'>
-         <Link to={`/detail/${id}`}>
-            <div className='face front'>
-               <img src={image} alt="" />
-            </div>
-            <div className='face back'>
-               <p>Name: "{name}"</p>
-               <p>Status: "{status}"</p>
-               <p>Species: "{species}"</p>
-               <p>Gender: "{gender}"</p>
-               <p>Origin: "{origin}"</p>
-               <button onClick={() => { onClose(id) }}>Close</button>
-            </div>
-         </Link>
+      <div className={style.cardContainer}>
+         <div className={style.imageContainer}>
+            <img
+               className={style.characterImage}
+               src={image}
+               alt={name}
+               onClick={navigateHandler}
+            />
+
+            <h2 className={style.name}>{name}</h2>
+
+            {fav ? (
+               <button onClick={() => handleFavorite(character.id)}>❤️</button>
+            ) : (
+               <button onClick={() => handleFavorite(character)}>🤍</button>
+            )}
+            {closeBtn && (
+               <button
+                  className={style.closeButton}
+                  onClick={() => {
+                     onClose(id);
+                  }}
+               >
+                  X
+               </button>
+            )}
+         </div>
+
+         <div className={style.atributes}>
+            <h2>{species}</h2>
+            <h2>{gender}</h2>
+         </div>
       </div>
-
-
    );
+}
+
+const mapDispatchToProps = (dispatch) => {
+   return {
+      addFavorite: (character) => dispatch(addFavorite(character)),
+
+      removeFavorite: (id) => dispatch(removeFavorite(id)),
+   };
 };
 
-export default Card;
+const mapStateToProps = (state) => {
+   return {
+      favorites: state.myFavorites,
+   };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Card);

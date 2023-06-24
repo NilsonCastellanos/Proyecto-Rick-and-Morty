@@ -1,13 +1,18 @@
 import './App.css';
-import Cards from './components/Cards/Cards.jsx';
-import style from './App.module.css'
-import NavBar from './components/NavBar/NavBar';
+//import style from './App.module.css'
 import { useState, useEffect } from 'react'; // useState es para crear estados locales 
-import axios from 'axios';
-import logoRM from './components/asets/pi.jfif';
+import { useDispatch } from "react-redux";
+import { removeFavorite } from "./redux/actions";
 import { Route, Routes, useLocation, useNavigate, } from 'react-router-dom';
+import axios from 'axios';
+
+import NavBar from './components/NavBar/NavBar';
+import Cards from './components/Cards/Cards.jsx';
+import logoRM from './components/asets/pi.jfif';
 import Detail from './views/Detail/Detail';
 import About from './views/About/About';
+
+import Favorites from './views/favorites/Favorites';
 import ErrorPage from './views/Error/ErrorPage';
 import LandingPage from './views/LandingPage/LandingPage';
 
@@ -18,11 +23,14 @@ function App() {
 
    const location = useLocation()
    const navigate = useNavigate();
+   const dispatch = useDispatch();
 
 
    const EMAIL = 'nil@gmail.com';
    const PASSWORD = '123nil';
-   
+
+   //------------------------------------------------------------
+
    function login(userData) {
       if (userData.password === PASSWORD && userData.email === EMAIL) {
          setAccess(true);
@@ -30,25 +38,27 @@ function App() {
       }
    }
 
-useEffect(() => {
-   !access && navigate("/");
-}, [access]);
+   useEffect(() => {
+      !access && navigate("/");
+   }, [access]);
 
 
    function searchHandler(id) {
-      axios(`https://rickandmortyapi.com/api/character/${id}`)
-         .then
-         (({ data }) => {
+      axios(`http://localhost:3001/rickandmorty/character/${id}`)
+         .then(({ data }) => {
             if (data.name) {
                setCharacters((oldChars) => [...oldChars, data]);
             } else {
                window.alert('No hay personajes con esta ID!');
             }
-
-         });
+         })
+         .catch((error) => console.log("Error en la matrix"));
    }
    function closeHandler(id) {
       let deleted = characters.filter((character) => character.id !== Number(id));
+
+      dispatch(removeFavorite(id));
+
       setCharacters(deleted);
    }
    function randomHandler() {
@@ -75,7 +85,7 @@ useEffect(() => {
    }
 
    return (
-      <div className={style.App}>
+      <div className="App">
 
          <img className='title' src={logoRM} alt="logo" />
 
@@ -85,11 +95,12 @@ useEffect(() => {
 
          <Routes>
 
-            <Route path="/" element={<LandingPage login={login}/>} />
+            <Route path="/" element={<LandingPage login={login} />} />
             <Route path="/home"
                element={<Cards characters={characters} onClose={closeHandler} />} />
             <Route path='/detail/:id' element={<Detail />} />
             <Route path='/about' element={<About />} />
+            <Route path='/favorites' element={<Favorites />} />
             <Route path="*" element={<ErrorPage />} />
 
 
